@@ -103,33 +103,73 @@ class Cache:
             print(f"Error loading cache: {e}")
 
 if __name__ == "__main__":
-    print("Testing Cache Layer (v4 - Decorator)...")
+    print("Running Comprehensive Test Suite for Challenge 3...")
     
-    PERISTENCE_FILE = 'test_cache_v4.pkl'
-    if os.path.exists(PERISTENCE_FILE):
-        os.remove(PERISTENCE_FILE)
+    TEST_FILE = 'test_cache_final.pkl'
+    if os.path.exists(TEST_FILE):
+        os.remove(TEST_FILE)
 
-    cache = Cache(max_size=3, ttl=5, persistence_file=PERISTENCE_FILE)
+    # Test 1: Pickle Persistence & Atomic Writes
+    print("\n[Test 1] Pickle Persistence (Complex Objects)")
+    class User:
+        def __init__(self, name): self.name = name
+        def __repr__(self): return f"User({self.name})"
     
-    # Test 1: Decorator Basic Usage
-    print("\n[Test 1] Decorator Usage")
-    
-    # Use a container to track calls in closure
+    # Write
+    with Cache(max_size=3, ttl=5, persistence_file=TEST_FILE) as cache:
+        u1 = User("Alice")
+        cache.put("u1", u1)
+        print(f"Cached object: {u1}")
+
+    # Reload
+    with Cache(max_size=3, ttl=5, persistence_file=TEST_FILE) as cache:
+        val = cache.get("u1")
+        print(f"Got object from reload: {val} -> {'PASS' if isinstance(val, User) and val.name == 'Alice' else 'FAIL'}")
+
+    # Test 2: LRU Eviction Logic
+    print("\n[Test 2] LRU Eviction (Max size 3)")
+    with Cache(max_size=3, ttl=5, persistence_file=TEST_FILE) as cache:
+        cache.cache.clear()
+        # [A]
+        cache.put("A", 1) 
+        # [A, B]
+        cache.put("B", 2) 
+        # [A, B, C]
+        cache.put("C", 3) 
+        
+        # Access A -> moves to end (most recent) -> [B, C, A]
+        cache.get("A")    
+        
+        # Put D -> Evict oldest (B) -> [C, A, D]
+        cache.put("D", 4) 
+        
+        val_a = cache.get("A")
+        val_b = cache.get("B")
+        val_c = cache.get("C")
+        
+        print(f"Got 'A': {val_a} (Expected: 1) -> {'PASS' if val_a == 1 else 'FAIL'}")
+        print(f"Got 'B': {val_b} (Expected: None) -> {'PASS' if val_b is None else 'FAIL'}")
+        print(f"Got 'C': {val_c} (Expected: 3) -> {'PASS' if val_c == 3 else 'FAIL'}")
+
+    # Test 3: Decorator
+    print("\n[Test 3] Decorator Usage")
     stats = {'call_count': 0}
     
-    @cache.decorator
+    # New cache instance for decorator test
+    dec_cache = Cache(max_size=10, ttl=5)
+    
+    @dec_cache.decorator
     def expensive_func(x):
         stats['call_count'] += 1
         return x * x
         
     print(f"First call (5): {expensive_func(5)}")
     print(f"Second call (5): {expensive_func(5)}")
-    
     print(f"Call count: {stats['call_count']} (Expected: 1) -> {'PASS' if stats['call_count'] == 1 else 'FAIL'}")
     
     print(f"Third call (6): {expensive_func(6)}")
     print(f"Call count: {stats['call_count']} (Expected: 2) -> {'PASS' if stats['call_count'] == 2 else 'FAIL'}")
 
     # Cleanup
-    if os.path.exists(PERISTENCE_FILE):
-         os.remove(PERISTENCE_FILE)
+    if os.path.exists(TEST_FILE):
+         os.remove(TEST_FILE)
