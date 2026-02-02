@@ -6,6 +6,29 @@ The goal of this project is to master effective prompting techniques through rig
 ## Challenges
 This project consists of 3 distinct coding challenges designed to test and improve prompting skills.
 
+### Challenge 1: Easy (25%)
+**Task**: Email validation function with regex
+
+- Create a function that validates email addresses
+- Handle common edge cases (plus addressing, subdomains)
+- Include test cases
+
+### Challenge 2: Medium (35%)
+**Task**: React sortable/filterable data table with pagination
+
+- Sortable columns (click to sort)
+- Filter by text input
+- Pagination (configurable page size)
+- Proper TypeScript types
+
+### Challenge 3: Hard (40%)
+**Task**: Caching layer with TTL, LRU eviction, persistence
+
+- Time-to-live (TTL) for entries
+- Least Recently Used (LRU) eviction when full
+- Persistence to `localStorage` or file
+- Configurable max size
+
 ## Workflow
 For each challenge, we follow this structured approach:
 
