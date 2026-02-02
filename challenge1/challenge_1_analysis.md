@@ -7,6 +7,11 @@
 **Result**: Failed one test case (`user@.com.my`) - Validated an invalid email.
 **Issues**: The regex `[a-zA-Z0-9.-]+` for the domain part allowed it to start with a dot, which is invalid.
 
+**Test Snapshot (v1 Failure)**:
+```text
+Email: user@.com.my | Expected: False | Actual: True | Result: FAIL
+```
+
 ### Version 2 (Refined)
 **Prompt**: "The previous regex failed the test case `user@.com.my` (it was valid but should be invalid due to the leading dot). Please update the regex to ensure that the domain part does not start with a dot or hyphen, but still handles subdomains correctly."
 **Result**: Passed all test cases.
